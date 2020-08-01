@@ -20,6 +20,11 @@ trait ApiResponser
 
   // return all elemetns of a collection
   protected function showAll(Collection $collection , $code = 200){
+  
+    if($collection->count() <= 0){
+      return $this->successResponse(['data' => [] ], $code );
+    }
+    
     $resource = $collection->first()->resource;
     $resourceCollection = $collection->first()->resourceCollection;        
   

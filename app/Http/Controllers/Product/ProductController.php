@@ -53,6 +53,7 @@ class ProductController extends ApiController
 
         $params = $request->all();
 
+        Subcategory::findOrFail($params['subcategory_id']);
         $params['image'] = $request->image->store('img/products');
 
         $product = Product::create($params);

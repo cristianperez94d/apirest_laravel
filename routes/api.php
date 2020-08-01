@@ -24,3 +24,8 @@ Route::get('/user', 'User\UserController@userData');
 * ROUTES PRODUCTS
 */
 Route::resource('products','Product\ProductController', ['except' => ['create', 'edit'] ] );
+Route::resource('products.photos','Product\ProductPhotoController', ['only' => ['index','store']] );
+/* 
+* ROUTES PHOTOS
+*/
+Route::resource('photos','Photo\PhotoController', ['except' => ['create', 'edit'] ] );
