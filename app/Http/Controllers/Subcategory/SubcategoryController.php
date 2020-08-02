@@ -2,11 +2,23 @@
 
 namespace App\Http\Controllers\Subcategory;
 
-use App\Http\Controllers\Controller;
+use App\Category;
+use App\Subcategory;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\SubcategoryResource;
 
-class SubcategoryController extends Controller
+class SubcategoryController extends ApiController
 {
+    public function __construct(){
+        $this->middleware('auth:api')->except('index', 'show');
+        $this->middleware('transform.input:'.SubcategoryResource::class)
+            ->only(['store', 'update']);
+        $this->middleware('can:storeSubcategory,App\Subcategory')->only('store');
+        $this->middleware('can:updateSubcategory,subcategory')->only('update');
+        $this->middleware('can:destroySubcategory,subcategory')->only('destroy');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,18 +26,10 @@ class SubcategoryController extends Controller
      */
     public function index()
     {
-        //
+        $subcategories = Subcategory::all();
+        return $this->showAll($subcategories);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -35,7 +39,23 @@ class SubcategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $reglas = [
+            'name' => ['required'],
+            'image' => ['required', 'image'],
+            'category_id' => ['required', 'integer'],
+        ];
+
+        $request->validate($reglas);
+
+        $params = $request->all();
+
+        Category::findOrFail($params['category_id']);
+        $params['image'] = $request->image->store('img/subcategories');
+
+        $subcategory = Subcategory::create($params);
+        
+        return $this->showOne($subcategory, 200, 'Subcategoria almacenada correctamente');
+
     }
 
     /**
@@ -44,20 +64,9 @@ class SubcategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Subcategory $subcategory)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
+        return $this->showOne($subcategory);
     }
 
     /**
@@ -67,9 +76,38 @@ class SubcategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Subcategory $subcategory)
     {
-        //
+        $reglas = [
+            'image' => ['image'],
+            'category_id' => ['integer'],
+        ];
+
+        $request->validate($reglas);
+
+        if($request->filled('name')){
+            $subcategory->name = $request->name;
+        }
+        if($request->filled('image')){
+            Storage::delete($subcategory->image);
+            $subcategory->image = $request->image->store('img/subcategories');
+        }
+        if($request->filled('category_id')){
+            if(!is_object(Category::find($request->category_id))){
+                return $this->errorResponse('La categoria que trata de ingresar no existe', 404);
+            }
+            $subcategory->category_id = $request->category_id;
+        }
+
+        if(!$subcategory->isDirty()){
+            return $this->errorResponse('Se debe especificar un valor diferente', 400);
+        }
+        
+        // save subcategory
+        $subcategory->save();
+
+        return $this->showOne($subcategory, 200 , 'Registro actualizado correctamente');
+
     }
 
     /**
@@ -78,8 +116,11 @@ class SubcategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Subcategory $subcategory)
     {
-        //
+        Storage::delete($subcategory->image);
+        $subcategory->delete();
+
+        return $this->showOne($subcategory, 200, 'Subcategoria eliminada correctamente');
     }
 }

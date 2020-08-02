@@ -21,6 +21,16 @@ Route::resource('users', 'User\UserController', ['except' => ['create', 'edit'] 
 Route::get('/user', 'User\UserController@userData');
 
 /* 
+* ROUTES SUBCATEGORIES
+*/
+Route::resource('subcategories', 'Subcategory\SubcategoryController', ['except' => ['create', 'edit'] ] );
+
+/* 
+* ROUTES CATEGORIES
+*/
+Route::resource('categories', 'Category\CategoryController', ['except' => ['create', 'edit'] ] );
+
+/* 
 * ROUTES PRODUCTS
 */
 Route::resource('products','Product\ProductController', ['except' => ['create', 'edit'] ] );

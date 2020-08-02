@@ -2,11 +2,23 @@
 
 namespace App\Http\Controllers\Category;
 
-use App\Http\Controllers\Controller;
+use App\Category;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\CategoryResource;
 
-class CategoryController extends Controller
+class CategoryController extends ApiController
 {
+    public function __construct(){
+        $this->middleware('auth:api')->except('index', 'show');
+        $this->middleware('transform.input:'.CategoryResource::class)
+            ->only(['store', 'update']);
+        $this->middleware('can:storeCategory,App\Category')->only('store');
+        $this->middleware('can:updateCategory,category')->only('update');
+        $this->middleware('can:destroyCategory,category')->only('destroy');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -14,18 +26,10 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        $categories = Category::all();
+        return $this->showAll($categories);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -35,7 +39,20 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $reglas = [
+            'name' => ['required'],
+            'image' => ['required', 'image'],
+        ];
+
+        $request->validate($reglas);
+
+        $params = $request->all();
+
+        $params['image'] = $request->image->store('img/categories');
+
+        $category = Category::create($params);
+        
+        return $this->showOne($category, 200, 'Categoria almacenada correctamente');
     }
 
     /**
@@ -44,21 +61,11 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Category $category)
     {
-        //
+        return $this->showOne($category);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -67,9 +74,31 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Category $category)
     {
-        //
+        $reglas = [
+            'image' => ['image'],
+        ];
+
+        $request->validate($reglas);
+
+        if($request->filled('name')){
+            $category->name = $request->name;
+        }
+
+        if($request->filled('image')){
+            Storage::delete($category->image);
+            $category->image = $request->image->store('img/categories');
+        }
+
+        if(!$category->isDirty()){
+            return $this->errorResponse('Se debe especificar un valor diferente', 400);
+        }
+        
+        // save category
+        $category->save();
+
+        return $this->showOne($category, 200 , 'Registro actualizado correctamente');
     }
 
     /**
@@ -78,8 +107,11 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        //
+        Storage::delete($category->image);
+        $category->delete();
+
+        return $this->showOne($category, 200, 'categoria eliminada correctamente');
     }
 }

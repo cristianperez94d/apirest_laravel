@@ -3,13 +3,14 @@
 namespace App\Policies;
 
 use App\User;
-use App\Photo;
+use App\Category;
 use App\Traits\AdminActions;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class PhotoPolicy
+class CategoryPolicy
 {
     use HandlesAuthorization, AdminActions;
+
 
     /**
      * Determine whether the user can create models.
@@ -17,7 +18,7 @@ class PhotoPolicy
      * @param  \App\User  $user
      * @return mixed
      */
-    public function storePhoto(User $user)
+    public function storeCategory(User $user)
     {
         return $user->admin === User::USER_ADMIN;
     }
@@ -26,10 +27,10 @@ class PhotoPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\User  $user
-     * @param  \App\Photo  $photo
+     * @param  \App\Category  $category
      * @return mixed
      */
-    public function updatePhoto(User $user, Photo $photo)
+    public function updateCategory(User $user, Category $category)
     {
         return $user->admin === User::USER_ADMIN;
     }
@@ -38,10 +39,10 @@ class PhotoPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\User  $user
-     * @param  \App\Photo  $photo
+     * @param  \App\Category  $category
      * @return mixed
      */
-    public function destroyPhoto(User $user, Photo $photo)
+    public function destroyCategory(User $user, Category $category)
     {
         return $user->admin === User::USER_ADMIN;
     }
