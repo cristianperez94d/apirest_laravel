@@ -51,16 +51,16 @@ $factory->define(Product::class, function (Faker $faker) {
     return [
         'name' => $faker->word.'_product',
         'description' => $faker->paragraph(1),
-        'weight' => $faker->randomNumber(3),
-        'price' => $faker->randomNumber(3),
-        'image' => $faker->randomElement(['img/products/pro1', 'img/products/pro2', 'img/products/pro3']),
+        'weight' => $faker->randomNumber(2),
+        'price' => $faker->randomNumber(7),
+        'image' => $faker->randomElement(['img/products/pro1.jpg', 'img/products/pro2.jpg', 'img/products/pro3.jpg']),
         'subcategory_id' => Subcategory::all()->random()->id,
     ];
 });
 
 $factory->define(Photo::class, function (Faker $faker) {
     return [
-        'image' => $faker->randomElement(['img/products/pro1', 'img/products/pro2', 'img/products/pro3']),
+        'image' => $faker->randomElement(['img/products/pro1.jpg', 'img/products/pro2.jpg', 'img/products/pro3.jpg']),
         'product_id' => Product::all()->random()->id,
     ];
 });
