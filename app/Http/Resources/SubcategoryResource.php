@@ -18,7 +18,8 @@ class SubcategoryResource extends JsonResource
             'identificador' => $this->id,
             'nombre' => $this->name,
             'foto' => $this->image,
-            'categoria' => $this->category,
+            // 'categoria' => $this->category,
+            'categoria' => $this->category_id,
             'links' => [
                 'rel' => 'self',
                 'href' => route('subcategories.show', $this->id)

@@ -24,11 +24,13 @@ Route::get('/user', 'User\UserController@userData');
 * ROUTES SUBCATEGORIES
 */
 Route::resource('subcategories', 'Subcategory\SubcategoryController', ['except' => ['create', 'edit'] ] );
+Route::resource('subcategories.products', 'Subcategory\SubcategoryProductController', ['only' => ['index'] ] );
 
 /* 
 * ROUTES CATEGORIES
 */
 Route::resource('categories', 'Category\CategoryController', ['except' => ['create', 'edit'] ] );
+Route::resource('categories.subcategories', 'Category\CategorySubcategoryController', ['only' => ['index'] ] );
 
 /* 
 * ROUTES PRODUCTS
