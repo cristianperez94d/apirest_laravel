@@ -28,6 +28,8 @@ trait ApiResponser
     $resource = $collection->first()->resource;
     $resourceCollection = $collection->first()->resourceCollection;        
   
+    $collection = $this->sortData($collection, $resource);
+
     $collection = $this->transformCollection($collection, $resource, $resourceCollection);
 
     $collection = $this->paginate($collection);
@@ -50,7 +52,7 @@ trait ApiResponser
     return $transform;
   }
 
-  // transformero of collections with resource
+  // transformer of collections with resource
   private function transformCollection(Collection $collection, $resource, $resourceCollection){
     $transform = $resource::collection($collection);    
     
@@ -83,6 +85,15 @@ trait ApiResponser
     return $paginated;
   }
 
+  protected function sortData(Collection $collection, $resource){
+    if(request()->has('sort_by')){
+      $attribute = $resource::originalAttribute(request()->sort_by);
+      $collection = $collection->sortBy->{$attribute};
+    }
+
+    return $collection;
+
+  }
 
 }
 
